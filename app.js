@@ -1,85 +1,70 @@
+//youtube video: https://www.youtube.com/watch?v=Hej48pi_lOc
 import express from "express";
-import messages from "./data.js";
-import cors from "cors";
+import {
+  getMessages,
+  getMessageById,
+  createMessage,
+  updateMessageById,
+  updateMessageByIdPatch,
+  deleteMessageById,
+} from "./database.js";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
-const port = 3000;
+const port = 8080;
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+app.get("/messages", async (req, res) => {
+  const messages = await getMessages();
+  res.send(messages);
 });
 
-//create message
-app.post("/messages", (req, res) => {
-  console.log(req.body);
-
-  const newMessage = {
-    id: messages.length + 1,
-    user: req.body.user,
-    text: req.body.text,
-    timestamp: req.body.timestamp,
-  };
-
-  messages.push(newMessage);
-
-  res.status(201).json(messages);
+app.get("/messages/:id", async (req, res) => {
+  const id = req.params.id;
+  const message = await getMessageById(id);
+  res.send(message);
 });
 
-//get all messages
-app.get("/messages", (req, res) => {
-  res.json(messages);
+app.post("/messages", async (req, res) => {
+  const { user, content } = req.body;
+  const message = await createMessage(user, content);
+  res.status(201).send(message);
 });
 
-//get single message by id
-app.get("/messages/:id", (req, res) => {
-  console.log(req.params);
+app.put("/messages/:id", async (req, res) => {
+  const { user, content } = req.body;
+  const id = req.params.id;
 
-  const id = Number(req.params.id);
+  const updatedMessage = await updateMessageById(id, user, content);
+  res.send(updatedMessage);
+});
 
-  const message = messages.find((m) => m.id === id);
+app.patch("/messages/:id", async (req, res) => {
+  const { user, content } = req.body;
+  const id = req.params.id;
 
-  if (!message) {
-    return res.status(404).json({ error: `Message with id ${id} not found` });
+  const updatedMessage = await updateMessageByIdPatch(id, user, content);
+
+  res.send(updatedMessage);
+});
+
+app.delete("/messages/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const deleted = await deleteMessageById(id);
+
+  if (!deleted) {
+    return res.status(404).send({ error: "Message not found" });
   }
 
-  res.json(message);
+  res.status(204).send();
 });
 
-//update message by id
-app.put("/messages/:id", (req, res) => {
-  const id = Number(req.params.id);
-  console.log(id, req.body);
-
-  const message = messages.find((m) => m.id === id);
-
-  if (!message) {
-    return res.status(404).json({ error: `Message with id ${id} not found` });
-  }
-
-  message.user = req.body.user;
-  message.text = req.body.text;
-  message.timestamp = req.body.timestamp;
-
-  res.json(messages);
-});
-
-//delete message by id
-app.delete("/messages/:id", (req, res) => {
-  const id = Number(req.params.id);
-
-  const message = messages.findIndex((m) => m.id === id);
-
-  if (message === -1) {
-    return res.status(404).json({ error: `Message with id ${id} not found` });
-  }
-
-  messages.splice(message, 1);
-
-  res.json(messages);
+//https://expressjs.com/en/5x/guide/error-handling/
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
