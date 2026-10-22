@@ -8,11 +8,15 @@
   "main": "app.js",
   "scripts": {
     "devStart": "node app.js",
-    "watch": "node --watch app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npx nodemon app.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
-    "express": "^5.3.0"
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
