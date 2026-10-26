@@ -15,9 +15,19 @@ app.use(express.json());
 const port = 8080;
 app.use(cors());
 
+// app.get("/messages", async (req, res) => {
+//   const messages = await getMessages();
+//   res.send(messages);
+// });
+
 app.get("/messages", async (req, res) => {
-  const messages = await getMessages();
-  res.send(messages);
+  try {
+    const messages = await getMessages();
+    res.send(messages);
+  } catch (err) {
+    console.error("DB error:", err.code, err.errors ?? err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
 app.get("/messages/:id", async (req, res) => {
