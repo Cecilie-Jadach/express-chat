@@ -8,10 +8,12 @@ import {
   updateMessageByIdPatch,
   deleteMessageById,
 } from "./database.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
 const port = 8080;
+app.use(cors());
 
 app.get("/messages", async (req, res) => {
   const messages = await getMessages();
