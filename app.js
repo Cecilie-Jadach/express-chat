@@ -30,6 +30,8 @@ app.get("/messages", async (req, res) => {
   }
 });
 
+console.log("Hello world");
+
 app.get("/messages/:id", async (req, res) => {
   const id = req.params.id;
   const message = await getMessageById(id);
